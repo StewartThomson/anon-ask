@@ -24,7 +24,7 @@ services:
       - MONGO_URI=mongodb://admin:example123@anon_ask_mongo:27017/anon-bot
     volumes:
       - ../src/:/home/node/app
-    command: "nodemon"
+    command: "nodemon -L"
     depends_on:
       - anon_ask_mongo
 volumes:
