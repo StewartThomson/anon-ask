@@ -18,8 +18,12 @@ const {
 
 const { MongoDbStorage } = require("botbuilder-storage-mongodb");
 
-// Load process.env values from .env file
-require("dotenv").config();
+if(process.env.NODE_ENV !== "development") {
+    // Load process.env values from .env file
+    require('dotenv').config();
+} else {
+    require('dotenv').config({ path: __dirname + '/.dev.env' })
+}
 
 let storage = null;
 if (process.env.MONGO_URI) {
@@ -39,16 +43,16 @@ const adapter = new SlackAdapter({
   // auth token for a single-team app
   botToken: process.env.botToken,
 
-  // credentials used to set up oauth for multi-team apps
-  clientId: process.env.clientId,
-  clientSecret: process.env.clientSecret,
-  scopes: ["bot"],
-  redirectUri: process.env.redirectUri,
-
-  // functions required for retrieving team-specific info
-  // for use in multi-team apps
-  getTokenForTeam: getTokenForTeam,
-  getBotUserByTeam: getBotUserByTeam
+    // credentials used to set up oauth for multi-team apps
+    // clientId: process.env.clientId,
+    // clientSecret: process.env.clientSecret,
+    // scopes: ['bot'],
+    // redirectUri: process.env.redirectUri,
+ 
+    // functions required for retrieving team-specific info
+    // for use in multi-team apps
+    getTokenForTeam: getTokenForTeam,
+    getBotUserByTeam: getBotUserByTeam,
 });
 
 // Use SlackEventMiddleware to emit events that match their original Slack event types.

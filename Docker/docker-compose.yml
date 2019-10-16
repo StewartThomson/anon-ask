@@ -1,0 +1,27 @@
+version: '3.7'
+
+services:
+  anon_ask_mongo:
+    container_name: anon_ask_mongo
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=example123
+    volumes:
+      - mongo:/data
+  anon_ask_node:
+    container_name: anon_ask_node
+    image: node:10.16-alpine
+    ports:
+      - 3000:3000
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=development
+      - MONGO_URI=mongodb://admin:example123.anon_ask_mongo:35648/anon-bot
+    volumes:
+      - ../src/:/home/node/app
+    command: "npm start"
+    depends_on:
+      - anon_ask_mongo
+volumes:
+  mongo: ~
