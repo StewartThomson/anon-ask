@@ -22,7 +22,7 @@ if(process.env.NODE_ENV !== "development") {
     // Load process.env values from .env file
     require('dotenv').config();
 } else {
-    require('dotenv').config({ path: __dirname + '/full/custom/path/to/your/env/vars' })
+    require('dotenv').config({ path: __dirname + '/.dev.env' })
 }
 
 let storage = null;
