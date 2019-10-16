@@ -7,20 +7,24 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=example123
+      - MONGO_INITDB_DATABASE=anon-bot
+    ports:
+      - 27017:27017
     volumes:
       - mongo:/data
+      - ./mongo/mongoinit.js:/docker-entrypoint-initdb.d/mongoinit.js
   anon_ask_node:
     container_name: anon_ask_node
-    image: node:10.16-alpine
+    build: ./node
     ports:
       - 3000:3000
     working_dir: /home/node/app
     environment:
       - NODE_ENV=development
-      - MONGO_URI=mongodb://admin:example123.anon_ask_mongo:35648/anon-bot
+      - MONGO_URI=mongodb://admin:example123@anon_ask_mongo:27017/anon-bot
     volumes:
       - ../src/:/home/node/app
-    command: "npm start"
+    command: "nodemon"
     depends_on:
       - anon_ask_mongo
 volumes:
