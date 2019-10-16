@@ -1,0 +1,19 @@
+{
+  "name": "anon-bot",
+  "version": "1.0.0",
+  "description": "anon-bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.socs.uoguelph.ca/botivity/anon-bot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1"
+  }
+}
