@@ -14,8 +14,12 @@ const { SlackAdapter, SlackMessageTypeMiddleware, SlackEventMiddleware } = requi
 
 const { MongoDbStorage } = require('botbuilder-storage-mongodb');
 
-// Load process.env values from .env file
-require('dotenv').config();
+if(process.env.NODE_ENV !== "development") {
+    // Load process.env values from .env file
+    require('dotenv').config();
+} else {
+    require('dotenv').config({ path: __dirname + '/full/custom/path/to/your/env/vars' })
+}
 
 let storage = null;
 if (process.env.MONGO_URI) {
@@ -38,10 +42,10 @@ const adapter = new SlackAdapter({
     botToken: process.env.botToken,
 
     // credentials used to set up oauth for multi-team apps
-    clientId: process.env.clientId,
-    clientSecret: process.env.clientSecret,
-    scopes: ['bot'], 
-    redirectUri: process.env.redirectUri,
+    // clientId: process.env.clientId,
+    // clientSecret: process.env.clientSecret,
+    // scopes: ['bot'],
+    // redirectUri: process.env.redirectUri,
  
     // functions required for retrieving team-specific info
     // for use in multi-team apps
