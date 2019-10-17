@@ -4,8 +4,8 @@ db.createUser(
         pwd: "example123",
         roles: [
             {
-                role: "readWrite",
-                db: "anon-bot"
+                role: "dbAdmin",
+                db: "BotFramework"
             }
         ]
     }

@@ -7,7 +7,7 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=example123
-      - MONGO_INITDB_DATABASE=anon-bot
+      - MONGO_INITDB_DATABASE=BotFramework
     ports:
       - 27017:27017
     volumes:
@@ -21,10 +21,10 @@ services:
     working_dir: /home/node/app
     environment:
       - NODE_ENV=development
-      - MONGO_URI=mongodb://admin:example123@anon_ask_mongo:27017/anon-bot
+      - MONGO_URI=mongodb://admin:example123@anon_ask_mongo:27017
     volumes:
       - ../src/:/home/node/app
-    command: "nodemon -L"
+    command: "nodemon --legacy-watch ./bot.js"
     depends_on:
       - anon_ask_mongo
 volumes:
