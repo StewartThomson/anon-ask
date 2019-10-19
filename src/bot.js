@@ -5,6 +5,7 @@
 // This is the main file for the anon-ask bot.
 
 // Import Botkit's core features
+const fs = require("fs");
 const { Botkit } = require("botkit");
 const { BotkitCMSHelper } = require("botkit-plugin-cms");
 
@@ -17,6 +18,26 @@ const {
 } = require("botbuilder-adapter-slack");
 
 const { MongoDbStorage } = require("botbuilder-storage-mongodb");
+
+const tokenCacheFile = __dirname + "/tokenCache.json";
+
+
+let tokenCache = {};
+let userCache = {};
+
+fs.access(tokenCacheFile, fs.constants.F_OK, (err) => {
+  if(!err) {
+    fs.readFile(tokenCacheFile, 'utf8', (err1, data) => {
+      if(err1) {
+        console.log(err1);
+        return;
+      }
+      data = JSON.parse(data);
+      tokenCache = data[0];
+      userCache = data[0];
+    })
+  }
+});
 
 if(process.env.NODE_ENV !== "development") {
     // Load process.env values from .env file
@@ -114,6 +135,10 @@ controller.webserver.get("/install/auth", async (req, res) => {
     // Capture team to bot id
     userCache[results.team_id] = results.bot.bot_user_id;
 
+    fs.writeFileSync(tokenCacheFile, JSON.stringify([
+        tokenCache, userCache
+    ]));
+
     res.json("Success! Bot installed.");
   } catch (err) {
     console.error("OAUTH ERROR:", err);
@@ -121,9 +146,6 @@ controller.webserver.get("/install/auth", async (req, res) => {
     res.send(err.message);
   }
 });
-
-let tokenCache = {};
-let userCache = {};
 
 if (process.env.TOKENS) {
   tokenCache = JSON.parse(process.env.TOKENS);
