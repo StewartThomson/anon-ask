@@ -63,6 +63,7 @@ const adapter = new SlackAdapter({
   // credentials used to set up oauth for multi-team apps
   clientId: process.env.clientId,
   clientSecret: process.env.clientSecret,
+  botToken: process.env.botToken, //Oauth Bot token
   scopes: ['bot'],
   redirectUri: process.env.redirectUri,
 
