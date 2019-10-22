@@ -91,7 +91,6 @@ if (process.env.cms_uri) {
   controller.usePlugin(
     new BotkitCMSHelper({
       uri: process.env.cms_uri,
-      token: process.env.cms_token
     })
   );
 }
