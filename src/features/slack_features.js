@@ -144,9 +144,12 @@ module.exports = function(controller) {
         } else if (message.text === 'private') {
             await bot.replyPrivate(message, 'This is a private reply');
         }
-
+        
+        //code for slash command to speak anon to channel
+        if (message.command === '/ask') {
+            await bot.replyPublic(message,` ${ message.text }`);
+        }
         // set http status
-        bot.httpBody({text:'You can send an immediate response using bot.httpBody()'});
 
     });
 
