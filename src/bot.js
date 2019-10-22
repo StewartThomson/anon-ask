@@ -63,7 +63,6 @@ const adapter = new SlackAdapter({
   // credentials used to set up oauth for multi-team apps
   clientId: process.env.clientId,
   clientSecret: process.env.clientSecret,
-  botToken: process.env.botToken, //Oauth Bot token
   scopes: ['bot'],
   redirectUri: process.env.redirectUri,
 
@@ -91,6 +90,7 @@ if (process.env.cms_uri) {
   controller.usePlugin(
     new BotkitCMSHelper({
       uri: process.env.cms_uri,
+      token: process.env.cms_token
     })
   );
 }
