@@ -1,2 +1,2 @@
 #!/bin/bash
-sudo pm2 stop node-app
+sudo pm2 stop anon-ask
