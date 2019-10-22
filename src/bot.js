@@ -8,6 +8,7 @@
 const fs = require("fs");
 const { Botkit } = require("botkit");
 const { BotkitCMSHelper } = require("botkit-plugin-cms");
+const path = require('path');
 
 // Import a platform-specific adapter for slack.
 
