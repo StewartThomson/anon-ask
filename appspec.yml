@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 files:
   - source: ./src
-  destination: /var/www
+    destination: /var/www
 
 hooks:
   BeforeInstall:
@@ -11,6 +11,7 @@ hooks:
       runas: root
   AfterInstall:
     - location: CodeDeployScripts/after_install.sh
+      timeout: 300
   ApplicationStart:
     - location: CodeDeployScripts/start_server.sh
       timeout: 300
