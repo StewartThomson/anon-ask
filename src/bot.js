@@ -41,9 +41,9 @@ fs.access(tokenCacheFile, fs.constants.F_OK, (err) => {
 
 if(process.env.NODE_ENV !== "development") {
     // Load process.env values from .env file
-    require('dotenv').config();
+    require('dotenv').config({ path: path.join(__dirname, '.env') });
 } else {
-    require('dotenv').config({ path: __dirname + '/.dev.env' })
+    require('dotenv').config({ path: path.join(__dirname + '/.dev.env') })
 }
 
 let storage = null;
