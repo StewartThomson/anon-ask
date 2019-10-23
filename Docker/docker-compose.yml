@@ -21,7 +21,7 @@ services:
     working_dir: /home/node/app
     environment:
       - NODE_ENV=development
-      - MONGO_URI=mongodb://admin:example123@anon_ask_mongo:27017
+      - MONGO_URI_BOT=mongodb://admin:example123@anon_ask_mongo:27017
     volumes:
       - ../src/:/home/node/app
     command: "nodemon --legacy-watch ./bot.js"

@@ -8,7 +8,7 @@
 const fs = require("fs");
 const { Botkit } = require("botkit");
 const { BotkitCMSHelper } = require("botkit-plugin-cms");
-const path = require('path');
+const path = require("path");
 
 // Import a platform-specific adapter for slack.
 
@@ -19,58 +19,70 @@ const {
 } = require("botbuilder-adapter-slack");
 
 const { MongoDbStorage } = require("botbuilder-storage-mongodb");
+const mongodb = require("mongoose");
 
 const tokenCacheFile = __dirname + "/tokenCache.json";
-
 
 let tokenCache = {};
 let userCache = {};
 
-fs.access(tokenCacheFile, fs.constants.F_OK, (err) => {
-  if(!err) {
-    fs.readFile(tokenCacheFile, 'utf8', (err1, data) => {
-      if(err1) {
+fs.access(tokenCacheFile, fs.constants.F_OK, err => {
+  if (!err) {
+    fs.readFile(tokenCacheFile, "utf8", (err1, data) => {
+      if (err1) {
         console.log(err1);
         return;
       }
       data = JSON.parse(data);
       tokenCache = data[0];
       userCache = data[0];
-    })
+    });
   }
 });
 
-if(process.env.NODE_ENV !== "development") {
-    // Load process.env values from .env file
-    require('dotenv').config({ path: path.join(__dirname, '.env') });
+if (process.env.NODE_ENV !== "development") {
+  // Load process.env values from .env file
+  require("dotenv").config({ path: path.join(__dirname, ".env") });
 } else {
-    require('dotenv').config({ path: path.join(__dirname + '/.dev.env') })
+  require("dotenv").config({ path: path.join(__dirname + "/.dev.env") });
 }
 
 let storage = null;
-if (process.env.MONGO_URI) {
+if (process.env.MONGO_URI_BOT) {
   storage = mongoStorage = new MongoDbStorage({
-    url: process.env.MONGO_URI
+    url: process.env.MONGO_URI_BOT
   });
 }
+
+mongodb.Promise = global.Promise;
+mongodb
+  .connect(process.env.MONGO_URI_STATE, { useNewUrlParser: true })
+
+  .then(() => {
+    console.log("Successfully connected to the database");
+  })
+  .catch(err => {
+    console.log("Could not connect to the database. Exiting now..." + err);
+    process.exit();
+  });
 
 const adapter = new SlackAdapter({
   // REMOVE THIS OPTION AFTER YOU HAVE CONFIGURED YOUR APP!
   enable_incomplete: false,
-  debug:true,
+  debug: true,
   // parameters used to secure webhook endpoint
   clientSigningSecret: process.env.clientSigningSecret,
 
   // credentials used to set up oauth for multi-team apps
   clientId: process.env.clientId,
   clientSecret: process.env.clientSecret,
-  scopes: ['bot'],
+  scopes: ["bot"],
   redirectUri: process.env.redirectUri,
 
-    // functions required for retrieving team-specific info
-    // for use in multi-team apps
-    getTokenForTeam: getTokenForTeam,
-    getBotUserByTeam: getBotUserByTeam,
+  // functions required for retrieving team-specific info
+  // for use in multi-team apps
+  getTokenForTeam: getTokenForTeam,
+  getBotUserByTeam: getBotUserByTeam
 });
 
 // Use SlackEventMiddleware to emit events that match their original Slack event types.
@@ -136,9 +148,7 @@ controller.webserver.get("/install/auth", async (req, res) => {
     // Capture team to bot id
     userCache[results.team_id] = results.bot.bot_user_id;
 
-    fs.writeFileSync(tokenCacheFile, JSON.stringify([
-        tokenCache, userCache
-    ]));
+    fs.writeFileSync(tokenCacheFile, JSON.stringify([tokenCache, userCache]));
 
     res.json("Success! Bot installed.");
   } catch (err) {

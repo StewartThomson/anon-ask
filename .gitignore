@@ -3,3 +3,4 @@ node_modules
 .idea
 .dev.env
 tokenCache.json
+yarn.lock
