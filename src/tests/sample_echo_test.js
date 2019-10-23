@@ -1,6 +1,6 @@
 'use strict';
 const assert = require('assert');
-const {BotMock, SlackApiMock} = require('../../lib');
+const {BotMock, SlackApiMock} = require('botkit-mock');
 const {SlackAdapter, SlackMessageTypeMiddleware, SlackEventMiddleware} = require('botbuilder-adapter-slack');
 const fileBeingTested = require('../features/sample_echo');
 
