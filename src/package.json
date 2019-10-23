@@ -11,9 +11,10 @@
     "botbuilder-adapter-slack": "^1.0.5",
     "botbuilder-storage-mongodb": "^0.9.5",
     "botkit": "^4.5.0",
-    "botkit-plugin-cms": "^1.0.2",
-    "dotenv": "^7.0.0",
-    "mongoose": "^5.7.5",
-    "@slack/web-api": "latest"
+    "botkit-plugin-cms": "^1.0.2"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.2.2"
   }
 }
