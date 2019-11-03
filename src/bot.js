@@ -38,7 +38,7 @@ fs.access(tokenCacheFile, fs.constants.F_OK, err => {
       }
       data = JSON.parse(data);
       tokenCache = data[0];
-      userCache = data[0];
+      userCache = data[1];
     });
   }
 });
@@ -148,7 +148,7 @@ controller.webserver.get("/install/auth", async (req, res) => {
     console.log("FULL OAUTH DETAILS", results);
 
     // Store token by team in bot state.
-    tokenCache[results.team_id] = results.bot.bot_access_token;
+    tokenCache[results.team_id] = {bot_access: results.bot.bot_access_token, oauth_access: results.access_token};
 
     // Capture team to bot id
     userCache[results.team_id] = results.bot.bot_user_id;
@@ -194,7 +194,7 @@ async function getTokenForTeam(teamId) {
   if (tokenCache[teamId]) {
     return new Promise(resolve => {
       setTimeout(function() {
-        resolve(tokenCache[teamId]);
+        resolve(tokenCache[teamId].bot_access);
       }, 150);
     });
   } else {
@@ -211,5 +211,13 @@ async function getBotUserByTeam(teamId) {
     });
   } else {
     console.error("Team not found in userCache: ", teamId);
+  }
+}
+
+module.exports.GetOAuthToken = function (teamId) {
+  if (tokenCache[teamId]) {
+    return tokenCache[teamId].oauth_access;
+  } else {
+    console.error("Team not found in tokenCache: ", teamId);
   }
 }
