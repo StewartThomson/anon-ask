@@ -167,12 +167,12 @@ controller.webserver.get("/install/auth", async (req, res) => {
         return member.id;
       });
 
-    AdminIdLog.create(
-      { workspace_id: results.team_id, admin_ids: adminIds },
-      function(err) {
-        if (err) throw err;
-      }
-    );
+    let query = { workspace_id: results.team_id };
+    let update = { admin_ids: adminIds };
+    let options = { upsert: true, new: true };
+    AdminIdLog.findOneAndUpdate(query, update, options, function(err) {
+      if (err) throw err;
+    });
 
     res.json("Success! Bot installed.");
   } catch (err) {
