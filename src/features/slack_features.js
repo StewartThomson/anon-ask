@@ -148,7 +148,7 @@ module.exports = function(controller) {
         }
         
         //code for slash command to speak anon to channel
-        if (message.command === '/ask1') {
+        if (message.command === '/ask') {
             await bot.replyPublic(message,` ${ message.text }`).then(async () => {
                 let teamId = bot.getConfig("activity").channelData.team_id;
 
