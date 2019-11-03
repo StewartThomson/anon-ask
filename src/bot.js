@@ -22,7 +22,7 @@ const {
 
 const { MongoDbStorage } = require("botbuilder-storage-mongodb");
 const mongodb = require("mongoose");
-let AdminIdLog = require("./schema/adminIdLog");
+let User = require("./schema/user");
 
 const tokenCacheFile = __dirname + "/tokenCache.json";
 
@@ -159,20 +159,23 @@ controller.webserver.get("/install/auth", async (req, res) => {
     let api = new WebClient(results.bot.bot_access_token);
     let userResponse = await api.users.list({});
 
-    let adminIds = userResponse.members
-      .filter(member => {
-        return member.is_admin;
-      })
+    let users = userResponse.members
       .map(member => {
-        return member.id;
+        return {
+          workspace_id: member.team_id,
+          user_id: member.id,
+          is_admin: member.is_admin,
+        };
       });
 
-    let query = { workspace_id: results.team_id };
-    let update = { admin_ids: adminIds };
     let options = { upsert: true, new: true };
-    AdminIdLog.findOneAndUpdate(query, update, options, function(err) {
-      if (err) throw err;
-    });
+    for(let user of users) {
+      let isAdmin = user.is_admin;
+      delete user.is_admin;
+      User.findOneAndUpdate(user, {is_banned: false, is_admin: isAdmin}, options, function(err) {
+        if (err) throw err;
+      });
+    }
 
     res.json("Success! Bot installed.");
   } catch (err) {
