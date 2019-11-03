@@ -5,6 +5,8 @@
 // This is the main file for the anon-ask bot.
 
 // Import Botkit's core features
+const { WebClient } = require("@slack/web-api");
+
 const fs = require("fs");
 const { Botkit } = require("botkit");
 const { BotkitCMSHelper } = require("botkit-plugin-cms");
@@ -20,6 +22,7 @@ const {
 
 const { MongoDbStorage } = require("botbuilder-storage-mongodb");
 const mongodb = require("mongoose");
+let AdminIdLog = require("./schema/adminIdLog");
 
 const tokenCacheFile = __dirname + "/tokenCache.json";
 
@@ -55,11 +58,13 @@ if (process.env.MONGO_URI_BOT) {
 }
 
 mongodb.Promise = global.Promise;
+let stateDb;
 mongodb
   .connect(process.env.MONGO_URI_STATE, { useNewUrlParser: true })
 
   .then(() => {
     console.log("Successfully connected to the database");
+    stateDb = mongodb.connection;
   })
   .catch(err => {
     console.log("Could not connect to the database. Exiting now..." + err);
@@ -149,6 +154,25 @@ controller.webserver.get("/install/auth", async (req, res) => {
     userCache[results.team_id] = results.bot.bot_user_id;
 
     fs.writeFileSync(tokenCacheFile, JSON.stringify([tokenCache, userCache]));
+
+    //Ping the Slack API to get a list of users in the workspace
+    let api = new WebClient(results.bot.bot_access_token);
+    let userResponse = await api.users.list({});
+
+    let adminIds = userResponse.members
+      .filter(member => {
+        return member.is_admin;
+      })
+      .map(member => {
+        return member.id;
+      });
+
+    AdminIdLog.create(
+      { workspace_id: results.team_id, admin_ids: adminIds },
+      function(err) {
+        if (err) throw err;
+      }
+    );
 
     res.json("Success! Bot installed.");
   } catch (err) {
