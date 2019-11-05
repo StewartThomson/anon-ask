@@ -1,7 +1,3 @@
-//  __   __  ___        ___
-// |__) /  \  |  |__/ |  |
-// |__) \__/  |  |  \ |  |
-
 // This is the main file for the anon-ask bot.
 
 // Import Botkit's core features
@@ -29,6 +25,7 @@ const tokenCacheFile = __dirname + "/tokenCache.json";
 let tokenCache = {};
 let userCache = {};
 
+//Ensure token cache file exists before reading
 fs.access(tokenCacheFile, fs.constants.F_OK, err => {
   if (!err) {
     fs.readFile(tokenCacheFile, "utf8", (err1, data) => {
@@ -38,17 +35,13 @@ fs.access(tokenCacheFile, fs.constants.F_OK, err => {
       }
       data = JSON.parse(data);
       tokenCache = data[0];
-      userCache = data[0];
+      userCache = data[1];
     });
   }
 });
 
-if (process.env.NODE_ENV !== "development") {
-  // Load process.env values from .env file
-  require("dotenv").config({ path: path.join(__dirname, ".env") });
-} else {
-  require("dotenv").config({ path: path.join(__dirname + "/.dev.env") });
-}
+// Load process.env values from .env file
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 let storage = null;
 if (process.env.MONGO_URI_BOT) {
@@ -72,8 +65,6 @@ mongodb
   });
 
 const adapter = new SlackAdapter({
-  // REMOVE THIS OPTION AFTER YOU HAVE CONFIGURED YOUR APP!
-  enable_incomplete: false,
   debug: true,
   // parameters used to secure webhook endpoint
   clientSigningSecret: process.env.clientSigningSecret,
@@ -104,32 +95,10 @@ const controller = new Botkit({
   storage
 });
 
-if (process.env.cms_uri) {
-  controller.usePlugin(
-    new BotkitCMSHelper({
-      uri: process.env.cms_uri,
-      token: process.env.cms_token
-    })
-  );
-}
-
 // Once the bot has booted up its internal services, you can use them to do stuff.
 controller.ready(() => {
   // load traditional developer-created local custom feature modules
   controller.loadModules(__dirname + "/features");
-
-  /* catch-all that uses the CMS to trigger dialogs */
-  if (controller.plugins.cms) {
-    controller.on("message,direct_message", async (bot, message) => {
-      let results = false;
-      results = await controller.plugins.cms.testTrigger(bot, message);
-
-      if (results !== false) {
-        // do not continue middleware!
-        return false;
-      }
-    });
-  }
 });
 
 controller.webserver.get("/", (req, res) => {
@@ -153,6 +122,7 @@ controller.webserver.get("/install/auth", async (req, res) => {
     // Capture team to bot id
     userCache[results.team_id] = results.bot.bot_user_id;
 
+    //Store token cache for persistence between server loads
     fs.writeFileSync(tokenCacheFile, JSON.stringify([tokenCache, userCache]));
 
     //Ping the Slack API to get a list of users in the workspace
