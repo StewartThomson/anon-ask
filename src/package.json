@@ -13,6 +13,7 @@
     "botkit": "^4.5.0",
     "botkit-plugin-cms": "^1.0.2",
     "dotenv": "^7.0.0",
-    "mongoose": "^5.7.5"
+    "mongoose": "^5.7.5",
+    "@slack/web-api": "latest"
   }
 }
