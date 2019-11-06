@@ -49,7 +49,6 @@ if (process.env.MONGO_URI_BOT) {
     url: process.env.MONGO_URI_BOT
   });
 }
-console.log(process.env);
 
 mongodb.Promise = global.Promise;
 let stateDb;
