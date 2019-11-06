@@ -63,7 +63,6 @@ mongodb
     console.log("Could not connect to the database. Exiting now..." + err);
     process.exit();
   });
-
 const adapter = new SlackAdapter({
   debug: true,
   // parameters used to secure webhook endpoint
@@ -72,7 +71,13 @@ const adapter = new SlackAdapter({
   // credentials used to set up oauth for multi-team apps
   clientId: process.env.clientId,
   clientSecret: process.env.clientSecret,
-  scopes: ["bot"],
+  scopes: [
+    "bot",
+    "channels:history",
+    "groups:history",
+    "mpim:history",
+    "im:history"
+  ],
   redirectUri: process.env.redirectUri,
 
   // functions required for retrieving team-specific info
@@ -117,7 +122,10 @@ controller.webserver.get("/install/auth", async (req, res) => {
     console.log("FULL OAUTH DETAILS", results);
 
     // Store token by team in bot state.
-    tokenCache[results.team_id] = {bot_access: results.bot.bot_access_token, oauth_access: results.access_token};
+    tokenCache[results.team_id] = {
+      bot_access: results.bot.bot_access_token,
+      oauth_access: results.access_token
+    };
 
     // Capture team to bot id
     userCache[results.team_id] = results.bot.bot_user_id;
@@ -129,22 +137,26 @@ controller.webserver.get("/install/auth", async (req, res) => {
     let api = new WebClient(results.bot.bot_access_token);
     let userResponse = await api.users.list({});
 
-    let users = userResponse.members
-      .map(member => {
-        return {
-          workspace_id: member.team_id,
-          user_id: member.id,
-          is_admin: member.is_admin,
-        };
-      });
+    let users = userResponse.members.map(member => {
+      return {
+        workspace_id: member.team_id,
+        user_id: member.id,
+        is_admin: member.is_admin
+      };
+    });
 
     let options = { upsert: true, new: true };
-    for(let user of users) {
+    for (let user of users) {
       let isAdmin = user.is_admin;
       delete user.is_admin;
-      User.findOneAndUpdate(user, {is_banned: false, is_admin: isAdmin}, options, function(err) {
-        if (err) throw err;
-      });
+      User.findOneAndUpdate(
+        user,
+        { is_banned: false, is_admin: isAdmin },
+        options,
+        function(err) {
+          if (err) throw err;
+        }
+      );
     }
 
     res.json("Success! Bot installed.");
@@ -187,10 +199,10 @@ async function getBotUserByTeam(teamId) {
   }
 }
 
-module.exports.GetOAuthToken = function (teamId) {
+module.exports.GetOAuthToken = function(teamId) {
   if (tokenCache[teamId]) {
     return tokenCache[teamId].oauth_access;
   } else {
     console.error("Team not found in tokenCache: ", teamId);
   }
-}
+};
