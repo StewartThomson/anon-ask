@@ -98,5 +98,48 @@ module.exports = function(controller) {
         }
       });
     }
+    if (message.command === "/ask-unblock") {
+      let user = {};
+      try {
+        const [foundUser] = await User.find({ user_id: message.user_id });
+        if (foundUser) {
+          user = foundUser;
+        }
+      } catch (error) {
+        return bot.replyPrivate(message, `Unable to unblock. Error occurred.`);
+      }
+      if (!user.is_admin) {
+        return bot.replyPrivate(
+          message,
+          `You are not a admin, you are not able to unblock users.`
+        );
+      }
+      let str = message.text;
+      const arrStr = str.split(/[ ,]+/);
+
+      arrStr.forEach(async str => {
+        const ifMatch = str.match(/(?!<@)([A-Z0-9]{9})\|(\w+)/g);
+        if (!ifMatch) {
+          return bot.replyPrivate(
+            message,
+            `Unable to unblock ${str}. Invalid user.`
+          );
+        }
+        const [matchStr] = ifMatch;
+        const [user_id, name] = matchStr.split("|");
+        try {
+          const user = await User.findOneAndUpdate(
+            { user_id },
+            { is_banned: false }
+          );
+          return await bot.replyPrivate(message, `Unblocked ${name}.`);
+        } catch (error) {
+          return bot.replyPrivate(
+            message,
+            `Unable to unblock ${name}. Error occured.`
+          );
+        }
+      });
+    }
   });
 };
