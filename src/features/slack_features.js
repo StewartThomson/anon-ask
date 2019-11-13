@@ -81,30 +81,30 @@ If this helped you, please mark the original message as resolved!`);
 
       try {
         const content = {
-            // insert valid JSON following Block Kit specs
-            //made this from slack block kit builder
-            "blocks": [
-                {
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": "Has this question been resolved?. "
-                    },
-                    "accessory": {
-                        "type": "button",
-                        "text": {
-                            "type": "plain_text",
-                            "text": "Yes!",
-                            "emoji": true
-                        },
-                        "style": "primary",
-                        "value": "anon-question"
-                    }
-                }
-            ]
+          // insert valid JSON following Block Kit specs
+          // made this from slack block kit builder
+          blocks: [
+            {
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: "Has this question been resolved?. "
+              },
+              accessory: {
+                type: "button",
+                text: {
+                  type: "plain_text",
+                  text: "Yes!",
+                  emoji: true
+                },
+                style: "primary",
+                value: "anon-question",
+              }
+            }
+          ]
         };
         await bot.replyPrivate(message, content);
-    } catch (error) {
+      } catch (error) {
         return bot.replyPrivate(message, `Error occurred.`);
       }
     }
