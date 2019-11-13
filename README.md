@@ -16,9 +16,18 @@ Slack slash commands:
 
 With more features to come!
 
-## Onboarding
+## Run anon-bot locally for developer
+#### NodeJS
+Requires node ^12.13.0. Run node -v to check your version.
 
-### Installing the bot
+If you are encountering node versioning issues, please refer to [How to install specific NodeJS version](https://medium.com/@katopz/how-to-install-specific-nodejs-version-c6e1cec8aa11) on how to resolve them.
+
+
+#### Update dependencies before running server
+1. In Terminal, navigate to the local directory you cloned the anon-bot repo to. This root directory should have a package.json file.
+2. Run `npm install` or `yarn` command in Terminal to install the dependencies.
+
+#### Installing the bot
 1. Clone this repo.
     ```sh
     > git clone https://gitlab.socs.uoguelph.ca/botivity/anon-bot.git
@@ -65,7 +74,7 @@ With more features to come!
     ```
 22. Navigate to `http://{yoursubdomain}.ngrok.io/install` on your browser. This will install the app.
 
-### Installing the slash commands
+#### Installing the slash commands
 So you have installed the app on your Slack Workspace, now you would like to install the slash commands.
 1. Navigate to your app on slack. `https://api.slack.com/apps`.
 2. Click on `Slash Commands` from the side menu.
@@ -80,3 +89,13 @@ So you have installed the app on your Slack Workspace, now you would like to ins
    ```
 5. Enable `Escape channels, users, and links sent to your app`.
 6. Click `Save`.
+
+
+
+# TODO: 
+- Troubleshooting, 
+- `Make your first commit`
+- `Want to start contributing?`
+- FAQ
+- Info about the team
+- Make it look like a open source project
