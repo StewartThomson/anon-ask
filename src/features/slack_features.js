@@ -22,6 +22,12 @@ module.exports = function(controller) {
     if (foundMessage.sender_id === message.user) {
       return await bot.replyEphemeral(message, 'Oops! You just replied to your anonymous question! Run!');
     }
+
+    await bot.startPrivateConversation(foundMessage.sender_id);
+    await bot.say(`
+<@${message.user}> responded to your message:\`\`\`${foundMessage.message_body}\`\`\`
+With:\`\`\`${message.text}\`\`\`
+If this helped you, please mark the original message as resolved!`)
   });
 
   controller.on("slash_command", async (bot, message) => {
