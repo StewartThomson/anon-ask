@@ -21,25 +21,14 @@ const mongodb = require("mongoose");
 let User = require("./schema/user");
 
 const tokenCacheFile = __dirname + "/tokenCache.json";
-
-let tokenCache = {};
+const { getToken } = require("./token");
 let userCache = {};
-
-//Ensure token cache file exists before reading
-fs.access(tokenCacheFile, fs.constants.F_OK, err => {
-  if (!err) {
-    fs.readFile(tokenCacheFile, "utf8", (err1, data) => {
-      if (err1) {
-        console.log(err1);
-        return;
-      }
-      data = JSON.parse(data);
-      tokenCache = data[0];
-      userCache = data[1];
-    });
-  }
-});
-
+let tokenCache = {};
+(async function() {
+  const cache = await getToken();
+  userCache = cache.userCache;
+  tokenCache = cache.tokenCache;
+})();
 // Load process.env values from .env file
 require("dotenv").config({ path: path.join(__dirname, ".env") });
 
@@ -188,6 +177,7 @@ async function getTokenForTeam(teamId) {
 }
 
 async function getBotUserByTeam(teamId) {
+  console.log({ teamId, userCache });
   if (userCache[teamId]) {
     return new Promise(resolve => {
       setTimeout(function() {
@@ -198,11 +188,3 @@ async function getBotUserByTeam(teamId) {
     console.error("Team not found in userCache: ", teamId);
   }
 }
-
-module.exports.GetOAuthToken = function(teamId) {
-  if (tokenCache[teamId]) {
-    return tokenCache[teamId].oauth_access;
-  } else {
-    console.error("Team not found in tokenCache: ", teamId);
-  }
-};

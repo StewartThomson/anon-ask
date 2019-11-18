@@ -6,14 +6,15 @@ const { SlackDialog } = require("botbuilder-adapter-slack");
 const Message = require("../schema/message");
 const User = require("../schema/user");
 
-const { GetOAuthToken } = require("../bot");
-
+const { GetOAuthToken } = require("../oauth");
 module.exports = function(controller) {
   controller.on("slash_command", async (bot, message) => {
     //code for slash command to speak anon to channel
     if (message.command === "/ask") {
       try {
-        const [foundUser] = await User.find({ user_id: message.user_id });
+        const [foundUser] = await User.find({
+          user_id: message.user_id || message.user
+        });
         if (foundUser && foundUser.is_banned) {
           return bot.replyPrivate(
             message,
@@ -27,7 +28,8 @@ module.exports = function(controller) {
         let teamId = bot.getConfig("activity").channelData.team_id;
         bot.api.conversations
           .history({
-            token: GetOAuthToken(teamId),
+            token: await GetOAuthToken(teamId),
+            token: "TOKEN",
             channel: message.channel,
             limit: 1
           })
@@ -58,7 +60,9 @@ module.exports = function(controller) {
     if (message.command === "/ask-block") {
       let user = {};
       try {
-        const [foundUser] = await User.find({ user_id: message.user_id });
+        const [foundUser] = await User.find({
+          user_id: message.user_id || message.user
+        });
         if (foundUser) {
           user = foundUser;
         }
@@ -93,7 +97,7 @@ module.exports = function(controller) {
         } catch (error) {
           return bot.replyPrivate(
             message,
-            `Unable to block ${name}. Error occured.`
+            `Unable to block ${name}. Error occurred.`
           );
         }
       });
@@ -101,7 +105,9 @@ module.exports = function(controller) {
     if (message.command === "/ask-unblock") {
       let user = {};
       try {
-        const [foundUser] = await User.find({ user_id: message.user_id });
+        const [foundUser] = await User.find({
+          user_id: message.user_id || message.user
+        });
         if (foundUser) {
           user = foundUser;
         }
@@ -136,7 +142,7 @@ module.exports = function(controller) {
         } catch (error) {
           return bot.replyPrivate(
             message,
-            `Unable to unblock ${name}. Error occured.`
+            `Unable to unblock ${name}. Error occurred.`
           );
         }
       });
