@@ -24,6 +24,6 @@ running_test:
 
 
 running_codecov:
-  stage: test
+  stage: codecov
   script: npm run codecov
 
