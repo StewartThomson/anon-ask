@@ -22,9 +22,11 @@ Slack slash commands:
 
 With more features to come!
 
-## Docs for future anon-bot docs
+## Docs for future anon-bot devs
 -  [Running anon-bot locally for development](/docs/RUNNING_LOCALLY.md)
 -  [Installing the slash commands](/docs/SLASH_COMMANDS.md)
 -  [Making your first commit](/docs/FIRST_COMMIT.md)
 -  [Troubleshooting](/docs/TROUBLESHOOTING.md)
+-  [Code Smells to Look Out for During Code Review](/docs/CODE_SMELLS.md)
+
  
