@@ -7,6 +7,7 @@ before_script:
 stages:
   - build
   - test
+  - codecov
   - prettierCheck
 
 cache:
@@ -20,4 +21,9 @@ running_prettier:
 running_test:
   stage: test
   script: npm run test
+
+
+running_codecov:
+  stage: test
+  script: npm run codecov
 
