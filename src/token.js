@@ -1,9 +1,9 @@
-const tokenCacheFile = __dirname + "/tokenCache.json";
+const tokenCacheFile = __dirname + '/tokenCache.json';
 
 let tokenCache = {};
 let userCache = {};
-const fsp = require("fs").promises;
-const fs = require("fs");
+const fsp = require('fs').promises;
+const fs = require('fs');
 
 module.exports.getToken = async () => {
   try {
@@ -13,7 +13,7 @@ module.exports.getToken = async () => {
     return { tokenCache: null, userCache: null };
   }
   try {
-    const data = await fsp.readFile(tokenCacheFile, "utf8");
+    const data = await fsp.readFile(tokenCacheFile, 'utf8');
     const [tokenCache, userCache] = JSON.parse(data);
     return { tokenCache, userCache };
   } catch (error) {

@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node bot.js",
     "test": "mocha tests/*",
-    "codecov": "nyc mocha tests/*"
+    "codecov": "nyc mocha tests/*",
+    "prettier:write": "prettier --write \"**/*.js\"",
+    "prettier:check": "prettier --check \"**/*.js\""
   },
   "dependencies": {
     "botbuilder-adapter-slack": "^1.0.5",

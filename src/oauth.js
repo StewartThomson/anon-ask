@@ -1,4 +1,4 @@
-const token = require("./token");
+const token = require('./token');
 
 module.exports.GetOAuthToken = async teamId => {
   const { tokenCache } = await token.getToken();
