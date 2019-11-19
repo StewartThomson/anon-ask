@@ -79,34 +79,34 @@ If this helped you, please mark the original message as resolved!`);
           });
       });
 
-      try {
-        const content = {
-          // insert valid JSON following Block Kit specs
-          // made this from slack block kit builder
-          blocks: [
-            {
-              type: "section",
-              text: {
-                type: "mrkdwn",
-                text: "Has this question been resolved?. "
-              },
-              accessory: {
-                type: "button",
-                text: {
-                  type: "plain_text",
-                  text: "Yes!",
-                  emoji: true
-                },
-                style: "primary",
-                value: "anon-question",
-              }
-            }
-          ]
-        };
-        await bot.replyPrivate(message, content);
-      } catch (error) {
-        return bot.replyPrivate(message, `Error occurred.`);
-      }
+      // try {
+      //   const content = {
+      //     // insert valid JSON following Block Kit specs
+      //     // made this from slack block kit builder
+      //     blocks: [
+      //       {
+      //         type: "section",
+      //         text: {
+      //           type: "mrkdwn",
+      //           text: "Has this question been resolved?. "
+      //         },
+      //         accessory: {
+      //           type: "button",
+      //           text: {
+      //             type: "plain_text",
+      //             text: "Yes!",
+      //             emoji: true
+      //           },
+      //           style: "primary",
+      //           value: "anon-question",
+      //         }
+      //       }
+      //     ]
+      //   };
+      //   await bot.replyPrivate(message, content);
+      // } catch (error) {
+      //   return bot.replyPrivate(message, `Error occurred.`);
+      // }
     }
     if (message.command === '/ask-block') {
       let user = {};
@@ -176,3 +176,29 @@ If this helped you, please mark the original message as resolved!`);
     }
   });
 };
+
+module.exports = function (controller) {
+  controller.on("message_action", async (bot, message) => {
+    if (message.callback_id === "resolve_question") {
+      try {
+        //Delete message and block user
+        await Promise.all([
+          bot.api.chat.update({
+            token: GetOAuthToken(message.team.id),
+            ts: message.message_ts,
+            channel: message.channel,
+            text: message.text + ' has been RESOLVED'
+          }),
+        ]);
+        return await bot.replyPrivate(message, `Message has been updated`);
+      } catch (error) {
+        console.log(error);
+        console.log(JSON.stringify(error));
+        return await bot.replyPrivate(
+          message,
+          `Unable to update message. Error occured.`
+        );
+      };
+    }
+  });
+}
