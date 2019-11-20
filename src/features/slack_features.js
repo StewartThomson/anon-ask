@@ -46,7 +46,7 @@ If this helped you, please mark the original message as resolved!`);
   controller.on("message_action", async (bot, message) => {
     if (message.callback_id === "resolve_question") {
       try {
-        let uid = await ConfirmUser(message.user_id)
+        let uid = await ConfirmUser(message.user)
         if (message.user != uid) {
           return bot.replyPrivate(
             message,
