@@ -16,7 +16,7 @@ describe('unit tests oauth', () => {
     sandbox.restore();
   });
   it('should return oauth from token file', async () => {
-    const getTokenStub = sandbox.stub(token, 'getToken').returns({
+    const getTokenStub = sandbox.stub(token, 'getTokens').returns({
       tokenCache: {
         test: {
           oauth_access: 'oauth_access_test',
@@ -28,7 +28,7 @@ describe('unit tests oauth', () => {
     assert.equal(returnVal, 'oauth_access_test');
   });
   it("should console.error if team id doesn't match", async () => {
-    const getTokenStub = sandbox.stub(token, 'getToken').returns({
+    const getTokenStub = sandbox.stub(token, 'getTokens').returns({
       tokenCache: {
         test_12: {
           oauth_access: 'oauth_access_test',

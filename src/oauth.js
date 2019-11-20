@@ -1,7 +1,7 @@
 const token = require('./token');
 
 module.exports.GetOAuthToken = async teamId => {
-  const { tokenCache } = await token.getToken();
+  const { tokenCache, _ } = await token.getTokens();
   if (tokenCache[teamId]) {
     return tokenCache[teamId].oauth_access;
   } else {
