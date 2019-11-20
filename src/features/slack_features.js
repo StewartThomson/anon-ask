@@ -43,71 +43,16 @@ With:\`\`\`${message.text}\`\`\`
 If this helped you, please mark the original message as resolved!`);
   });
 
-  controller.on("message_action", async (bot, message) => {
-    if (message.callback_id === "resolve_question") {
+  controller.on('message_action', async (bot, message) => {
+    if (message.callback_id === 'resolve_question_23') {
       try {
-        let uid = await ConfirmUser(message.user)
+        let uid = await ConfirmUser(message.user);
         if (message.user != uid) {
-          return bot.replyPrivate(
-            message,
-            `You are not an authenticated user.`
-          );
+          return bot.replyPrivate(message, `You are not an authenticated user.`);
         }
       } catch (error) {
-        console.log(error)
-        return bot.replyPrivate(
-          message,
-          `Unable to fetch messages. Error occurred.`
-        );
-      }
-
-      await Message.findOne(
-        { message_timestamp: message.message_ts },
-        async (err, foundMessage) => {
-          if (err) {
-            console.log(err);
-            return;
-          }
-          try {
-            //Post message Resolved
-            await Promise.all([
-              bot.api.chat.postMessage({
-                token: GetOAuthToken(message.team.id),
-                ts: message.message_ts,
-                channel: message.channel,
-                text: foundMessage.message_body + " has been RESOLVED",
-              })
-            ]);
-            return await bot.replyPrivate(message, `Message has been updated.`);
-          } catch (error) {
-            console.log(error);
-            console.log(JSON.stringify(error));
-            return await bot.replyPrivate(
-              message,
-              `Unable to update the message. Error occured.`
-            );
-          }
-        }
-      );
-    }
-  });
-  controller.on("slash_command", async (bot, message) => {
-    //code for slash command to speak anon to channel
-    if (message.command === "/ask") {
-      try {
-        let uid = await ConfirmUser(message.user)
-        if (message.user != uid) {
-          return bot.replyPrivate(
-            message,
-            `You are not an authenticated user.`
-          );
-        }
-      } catch (error) {
-        console.log(error)
-        return bot.replyPrivate(
-          message,
-          `Unable to fetch messages. Error occurred.`
-        );
+        console.log(error);
+        return bot.replyPrivate(message, `Unable to fetch messages. Error occurred.`);
       }
 
       await Message.findOne(
@@ -124,25 +69,22 @@ If this helped you, please mark the original message as resolved!`);
                 token: await GetOAuthToken(message.team.id),
                 ts: message.message_ts,
                 channel: message.channel,
-                text: foundMessage.message_body + " has been RESOLVED",
-              })
+                text: foundMessage.message_body + ' has been RESOLVED',
+              }),
             ]);
             return await bot.replyPrivate(message, `Message has been updated.`);
           } catch (error) {
             console.log(error);
             console.log(JSON.stringify(error));
-            return await bot.replyPrivate(
-              message,
-              `Unable to update the message. Error occured.`
-            );
+            return await bot.replyPrivate(message, `Unable to update the message. Error occured.`);
           }
         }
       );
     }
   });
-  controller.on("slash_command", async (bot, message) => {
+  controller.on('slash_command', async (bot, message) => {
     //code for slash command to speak anon to channel
-    if (message.command === '/ask') {
+    if (message.command === '/ask23') {
       try {
         const [foundUser] = await User.find({
           user_id: message.user_id || message.user,
