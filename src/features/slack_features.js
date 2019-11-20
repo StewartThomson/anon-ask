@@ -15,6 +15,17 @@ async function ConfirmUser(userId) {
   return user.user_id;
 }
 
+async function ConfirmUser(userId) {
+  let user = {};
+  console.log("User ID in function --> "+userId);
+  const [foundUser] = await User.find({ user_id: userId });
+  if (foundUser) {
+    user = foundUser;
+  }
+  // console.log(user.user_id)
+  return user.user_id;
+}
+
 module.exports = function(controller) {
   controller.on('message', async (bot, message) => {
     if (!message.thread_ts) {
@@ -45,6 +56,55 @@ If this helped you, please mark the original message as resolved!`);
 
   controller.on("message_action", async (bot, message) => {
     if (message.callback_id === "resolve_question") {
+      try {
+        let uid = await ConfirmUser(message.user)
+        if (message.user != uid) {
+          return bot.replyPrivate(
+            message,
+            `You are not an authenticated user.`
+          );
+        }
+      } catch (error) {
+        console.log(error)
+        return bot.replyPrivate(
+          message,
+          `Unable to fetch messages. Error occurred.`
+        );
+      }
+
+      await Message.findOne(
+        { message_timestamp: message.message_ts },
+        async (err, foundMessage) => {
+          if (err) {
+            console.log(err);
+            return;
+          }
+          try {
+            //Post message Resolved
+            await Promise.all([
+              bot.api.chat.postMessage({
+                token: GetOAuthToken(message.team.id),
+                ts: message.message_ts,
+                channel: message.channel,
+                text: foundMessage.message_body + " has been RESOLVED",
+              })
+            ]);
+            return await bot.replyPrivate(message, `Message has been updated.`);
+          } catch (error) {
+            console.log(error);
+            console.log(JSON.stringify(error));
+            return await bot.replyPrivate(
+              message,
+              `Unable to update the message. Error occured.`
+            );
+          }
+        }
+      );
+    }
+  });
+  controller.on("slash_command", async (bot, message) => {
+    //code for slash command to speak anon to channel
+    if (message.command === "/ask") {
       try {
         let uid = await ConfirmUser(message.user)
         if (message.user != uid) {
@@ -135,35 +195,6 @@ If this helped you, please mark the original message as resolved!`);
             if (err) console.log(err);
           });
       });
-
-      // try {
-      //   const content = {
-      //     // insert valid JSON following Block Kit specs
-      //     // made this from slack block kit builder
-      //     blocks: [
-      //       {
-      //         type: "section",
-      //         text: {
-      //           type: "mrkdwn",
-      //           text: "Has this question been resolved?. "
-      //         },
-      //         accessory: {
-      //           type: "button",
-      //           text: {
-      //             type: "plain_text",
-      //             text: "Yes!",
-      //             emoji: true
-      //           },
-      //           style: "primary",
-      //           value: "anon-question",
-      //         }
-      //       }
-      //     ]
-      //   };
-      //   await bot.replyPrivate(message, content);
-      // } catch (error) {
-      //   return bot.replyPrivate(message, `Error occurred.`);
-      // }
     }
     if (message.command === '/ask-block') {
       let user = {};
