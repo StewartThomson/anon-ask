@@ -54,12 +54,12 @@ const adapter = new SlackAdapter({
   clientId: process.env.clientId,
   clientSecret: process.env.clientSecret,
   scopes: [
-    "bot",
-    "channels:history",
-    "groups:history",
-    "chat:write:bot",
-    "mpim:history",
-    "im:history"
+    'bot',
+    'channels:history',
+    'groups:history',
+    'chat:write:bot',
+    'mpim:history',
+    'im:history',
   ],
   redirectUri: process.env.redirectUri,
 
