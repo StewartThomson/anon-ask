@@ -1,4 +1,4 @@
-var mongoose = require("mongoose");
+var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var messageSchema = new Schema({
@@ -6,9 +6,9 @@ var messageSchema = new Schema({
   sender_id: String,
   message_timestamp: Number,
   message_body: String,
-  channel_id: String
+  channel_id: String,
 });
 
-var Message = mongoose.model("Message", messageSchema);
+var Message = mongoose.model('Message', messageSchema);
 
 module.exports = Message;

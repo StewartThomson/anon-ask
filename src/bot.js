@@ -1,52 +1,41 @@
 // This is the main file for the anon-ask bot.
 
 // Import Botkit's core features
-const { WebClient } = require("@slack/web-api");
+const { WebClient } = require('@slack/web-api');
 
-const fs = require("fs");
-const { Botkit } = require("botkit");
-const { BotkitCMSHelper } = require("botkit-plugin-cms");
-const path = require("path");
+const fs = require('fs');
+const { Botkit } = require('botkit');
+const { BotkitCMSHelper } = require('botkit-plugin-cms');
+const path = require('path');
 
 // Import a platform-specific adapter for slack.
 
 const {
   SlackAdapter,
   SlackMessageTypeMiddleware,
-  SlackEventMiddleware
-} = require("botbuilder-adapter-slack");
+  SlackEventMiddleware,
+} = require('botbuilder-adapter-slack');
 
-const { MongoDbStorage } = require("botbuilder-storage-mongodb");
-const mongodb = require("mongoose");
-let User = require("./schema/user");
+const { MongoDbStorage } = require('botbuilder-storage-mongodb');
+const mongodb = require('mongoose');
+let User = require('./schema/user');
 
-const tokenCacheFile = __dirname + "/tokenCache.json";
-
-let tokenCache = {};
+const tokenCacheFile = __dirname + '/tokenCache.json';
+const { getToken } = require('./token');
 let userCache = {};
-
-//Ensure token cache file exists before reading
-fs.access(tokenCacheFile, fs.constants.F_OK, err => {
-  if (!err) {
-    fs.readFile(tokenCacheFile, "utf8", (err1, data) => {
-      if (err1) {
-        console.log(err1);
-        return;
-      }
-      data = JSON.parse(data);
-      tokenCache = data[0];
-      userCache = data[1];
-    });
-  }
-});
-
+let tokenCache = {};
+(async function() {
+  const cache = await getToken();
+  userCache = cache.userCache;
+  tokenCache = cache.tokenCache;
+})();
 // Load process.env values from .env file
-require("dotenv").config({ path: path.join(__dirname, ".env") });
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 let storage = null;
 if (process.env.MONGO_URI_BOT) {
   storage = mongoStorage = new MongoDbStorage({
-    url: process.env.MONGO_URI_BOT
+    url: process.env.MONGO_URI_BOT,
   });
 }
 
@@ -56,11 +45,11 @@ mongodb
   .connect(process.env.MONGO_URI_STATE, { useNewUrlParser: true })
 
   .then(() => {
-    console.log("Successfully connected to the database");
+    console.log('Successfully connected to the database');
     stateDb = mongodb.connection;
   })
   .catch(err => {
-    console.log("Could not connect to the database. Exiting now..." + err);
+    console.log('Could not connect to the database. Exiting now...' + err);
     process.exit();
   });
 const adapter = new SlackAdapter({
@@ -71,19 +60,13 @@ const adapter = new SlackAdapter({
   // credentials used to set up oauth for multi-team apps
   clientId: process.env.clientId,
   clientSecret: process.env.clientSecret,
-  scopes: [
-    "bot",
-    "channels:history",
-    "groups:history",
-    "mpim:history",
-    "im:history"
-  ],
+  scopes: ['bot', 'channels:history', 'groups:history', 'mpim:history', 'im:history'],
   redirectUri: process.env.redirectUri,
 
   // functions required for retrieving team-specific info
   // for use in multi-team apps
   getTokenForTeam: getTokenForTeam,
-  getBotUserByTeam: getBotUserByTeam
+  getBotUserByTeam: getBotUserByTeam,
 });
 
 // Use SlackEventMiddleware to emit events that match their original Slack event types.
@@ -93,38 +76,38 @@ adapter.use(new SlackEventMiddleware());
 adapter.use(new SlackMessageTypeMiddleware());
 
 const controller = new Botkit({
-  webhook_uri: "/api/messages",
+  webhook_uri: '/api/messages',
 
   adapter: adapter,
 
-  storage
+  storage,
 });
 
 // Once the bot has booted up its internal services, you can use them to do stuff.
 controller.ready(() => {
   // load traditional developer-created local custom feature modules
-  controller.loadModules(__dirname + "/features");
+  controller.loadModules(__dirname + '/features');
 });
 
-controller.webserver.get("/", (req, res) => {
+controller.webserver.get('/', (req, res) => {
   res.send(`This app is running Botkit ${controller.version}.`);
 });
 
-controller.webserver.get("/install", (req, res) => {
+controller.webserver.get('/install', (req, res) => {
   // getInstallLink points to slack's oauth endpoint and includes clientId and scopes
   res.redirect(controller.adapter.getInstallLink());
 });
 
-controller.webserver.get("/install/auth", async (req, res) => {
+controller.webserver.get('/install/auth', async (req, res) => {
   try {
     const results = await controller.adapter.validateOauthCode(req.query.code);
 
-    console.log("FULL OAUTH DETAILS", results);
+    console.log('FULL OAUTH DETAILS', results);
 
     // Store token by team in bot state.
     tokenCache[results.team_id] = {
       bot_access: results.bot.bot_access_token,
-      oauth_access: results.access_token
+      oauth_access: results.access_token,
     };
 
     // Capture team to bot id
@@ -141,7 +124,7 @@ controller.webserver.get("/install/auth", async (req, res) => {
       return {
         workspace_id: member.team_id,
         user_id: member.id,
-        is_admin: member.is_admin
+        is_admin: member.is_admin,
       };
     });
 
@@ -149,19 +132,14 @@ controller.webserver.get("/install/auth", async (req, res) => {
     for (let user of users) {
       let isAdmin = user.is_admin;
       delete user.is_admin;
-      User.findOneAndUpdate(
-        user,
-        { is_banned: false, is_admin: isAdmin },
-        options,
-        function(err) {
-          if (err) throw err;
-        }
-      );
+      User.findOneAndUpdate(user, { is_banned: false, is_admin: isAdmin }, options, function(err) {
+        if (err) throw err;
+      });
     }
 
-    res.json("Success! Bot installed.");
+    res.json('Success! Bot installed.');
   } catch (err) {
-    console.error("OAUTH ERROR:", err);
+    console.error('OAUTH ERROR:', err);
     res.status(401);
     res.send(err.message);
   }
@@ -183,11 +161,12 @@ async function getTokenForTeam(teamId) {
       }, 150);
     });
   } else {
-    console.error("Team not found in tokenCache: ", teamId);
+    console.error('Team not found in tokenCache: ', teamId);
   }
 }
 
 async function getBotUserByTeam(teamId) {
+  console.log({ teamId, userCache });
   if (userCache[teamId]) {
     return new Promise(resolve => {
       setTimeout(function() {
@@ -195,14 +174,6 @@ async function getBotUserByTeam(teamId) {
       }, 150);
     });
   } else {
-    console.error("Team not found in userCache: ", teamId);
+    console.error('Team not found in userCache: ', teamId);
   }
 }
-
-module.exports.GetOAuthToken = function(teamId) {
-  if (tokenCache[teamId]) {
-    return tokenCache[teamId].oauth_access;
-  } else {
-    console.error("Team not found in tokenCache: ", teamId);
-  }
-};
