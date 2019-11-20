@@ -7,6 +7,33 @@ const User = require('../schema/user');
 
 const { GetOAuthToken } = require('../oauth');
 module.exports = function(controller) {
+  controller.on('message', async (bot, message) => {
+    if (!message.thread_ts) {
+      return;
+    }
+
+    const [foundMessage] = await Message.find({
+      message_timestamp: message.thread_ts,
+      team_id: message.team,
+    });
+    if (!foundMessage) {
+      return;
+    }
+
+    if (foundMessage.sender_id === message.user) {
+      return await bot.replyEphemeral(
+        message,
+        'Oops! You just replied to your anonymous question! Run!'
+      );
+    }
+
+    await bot.startPrivateConversation(foundMessage.sender_id);
+    await bot.say(`
+<@${message.user}> responded to your message:\`\`\`${foundMessage.message_body}\`\`\`
+With:\`\`\`${message.text}\`\`\`
+If this helped you, please mark the original message as resolved!`);
+  });
+
   controller.on('slash_command', async (bot, message) => {
     //code for slash command to speak anon to channel
     if (message.command === '/ask') {
