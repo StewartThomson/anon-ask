@@ -2,7 +2,6 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
-const { SlackDialog } = require('botbuilder-adapter-slack');
 const Message = require('../schema/message');
 const User = require('../schema/user');
 
@@ -26,7 +25,6 @@ module.exports = function(controller) {
         bot.api.conversations
           .history({
             token: await GetOAuthToken(teamId),
-            token: 'TOKEN',
             channel: message.channel,
             limit: 1,
           })

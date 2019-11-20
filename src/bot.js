@@ -20,15 +20,8 @@ const { MongoDbStorage } = require('botbuilder-storage-mongodb');
 const mongodb = require('mongoose');
 let User = require('./schema/user');
 
-const tokenCacheFile = __dirname + '/tokenCache.json';
-const { getToken } = require('./token');
-let userCache = {};
-let tokenCache = {};
-(async function() {
-  const cache = await getToken();
-  userCache = cache.userCache;
-  tokenCache = cache.tokenCache;
-})();
+const { getTokens, setTokens } = require('./token');
+
 // Load process.env values from .env file
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
@@ -102,19 +95,12 @@ controller.webserver.get('/install/auth', async (req, res) => {
   try {
     const results = await controller.adapter.validateOauthCode(req.query.code);
 
-    console.log('FULL OAUTH DETAILS', results);
-
-    // Store token by team in bot state.
-    tokenCache[results.team_id] = {
-      bot_access: results.bot.bot_access_token,
-      oauth_access: results.access_token,
-    };
-
-    // Capture team to bot id
-    userCache[results.team_id] = results.bot.bot_user_id;
-
-    //Store token cache for persistence between server loads
-    fs.writeFileSync(tokenCacheFile, JSON.stringify([tokenCache, userCache]));
+    await setTokens(
+      results.team_id,
+      results.bot.bot_access_token,
+      results.access_token,
+      results.bot.bot_user_id
+    );
 
     //Ping the Slack API to get a list of users in the workspace
     let api = new WebClient(results.bot.bot_access_token);
@@ -145,15 +131,8 @@ controller.webserver.get('/install/auth', async (req, res) => {
   }
 });
 
-if (process.env.TOKENS) {
-  tokenCache = JSON.parse(process.env.TOKENS);
-}
-
-if (process.env.USERS) {
-  userCache = JSON.parse(process.env.USERS);
-}
-
 async function getTokenForTeam(teamId) {
+  const { tokenCache, _ } = await getTokens();
   if (tokenCache[teamId]) {
     return new Promise(resolve => {
       setTimeout(function() {
@@ -166,7 +145,7 @@ async function getTokenForTeam(teamId) {
 }
 
 async function getBotUserByTeam(teamId) {
-  console.log({ teamId, userCache });
+  const { _, userCache } = await getTokens();
   if (userCache[teamId]) {
     return new Promise(resolve => {
       setTimeout(function() {

@@ -1,23 +1,47 @@
 const tokenCacheFile = __dirname + '/tokenCache.json';
 
-let tokenCache = {};
-let userCache = {};
+let tokenCache = null;
+let userCache = null;
 const fsp = require('fs').promises;
 const fs = require('fs');
 
-module.exports.getToken = async () => {
+setTokensFromCache = async () => {
+  //Ensure token cache file exists before reading
   try {
     await fsp.access(tokenCacheFile, fs.constants.F_OK);
-  } catch (error) {
-    console.log(`could not find ${tokenCacheFile}`);
-    return { tokenCache: null, userCache: null };
-  }
-  try {
     const data = await fsp.readFile(tokenCacheFile, 'utf8');
-    const [tokenCache, userCache] = JSON.parse(data);
-    return { tokenCache, userCache };
+    [tokenCache, userCache] = JSON.parse(data);
   } catch (error) {
-    throw new Error(`Error reading file ${tokenCacheFile}`);
+    console.log(`Error reading file ${tokenCacheFile}`);
+    tokenCache = {};
+    userCache = {};
   }
 };
-//Ensure token cache file exists before reading
+
+module.exports.getTokens = async () => {
+  /* istanbul ignore next  */
+  if (tokenCache === null || userCache === null) {
+    await setTokensFromCache();
+  }
+
+  return { tokenCache, userCache };
+};
+
+module.exports.setTokens = async (team_id, bot_access_token, oauth_access_token, bot_user_id) => {
+  /* istanbul ignore next  */
+  if (tokenCache === null || userCache === null) {
+    await setTokensFromCache();
+  }
+
+  // Store token by team in bot state.
+  tokenCache[team_id] = {
+    bot_access: bot_access_token,
+    oauth_access: oauth_access_token,
+  };
+
+  // Capture team to bot id
+  userCache[team_id] = bot_user_id;
+
+  //Store token cache for persistence between server loads
+  fs.writeFileSync(tokenCacheFile, JSON.stringify([tokenCache, userCache]));
+};
