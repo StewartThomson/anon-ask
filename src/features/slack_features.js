@@ -8,12 +8,10 @@ const { GetOAuthToken } = require('../oauth');
 
 async function ConfirmUser(userId) {
   let user = {};
-  console.log("User ID in function --> "+userId);
   const [foundUser] = await User.find({ user_id: userId });
   if (foundUser) {
     user = foundUser;
   }
-  // console.log(user.user_id)
   return user.user_id;
 }
 
