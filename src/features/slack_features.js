@@ -44,7 +44,7 @@ If this helped you, please mark the original message as resolved!`);
   });
 
   controller.on('message_action', async (bot, message) => {
-    if (message.callback_id === 'resolve_question_23') {
+    if (message.callback_id === 'resolve_question') {
       try {
         let uid = await ConfirmUser(message.user);
         if (message.user != uid) {
@@ -84,7 +84,7 @@ If this helped you, please mark the original message as resolved!`);
   });
   controller.on('slash_command', async (bot, message) => {
     //code for slash command to speak anon to channel
-    if (message.command === '/ask23') {
+    if (message.command === '/ask') {
       try {
         const [foundUser] = await User.find({
           user_id: message.user_id || message.user,
