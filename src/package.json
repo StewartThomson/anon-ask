@@ -11,6 +11,7 @@
     "prettier:check": "prettier --check \"**/*.js\""
   },
   "dependencies": {
+    "@slack/web-api": "latest",
     "botbuilder-adapter-slack": "^1.0.5",
     "botbuilder-storage-mongodb": "^0.9.5",
     "botkit-plugin-cms": "^1.0.2",
@@ -34,9 +35,9 @@
   },
   "nyc": {
     "check-coverage": true,
-    "branches": 50,
-    "lines": 50,
-    "functions": 50,
-    "statements": 50
+    "branches": 40,
+    "lines": 40,
+    "functions": 40,
+    "statements": 40
   }
 }

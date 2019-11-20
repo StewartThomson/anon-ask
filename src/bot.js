@@ -53,7 +53,14 @@ const adapter = new SlackAdapter({
   // credentials used to set up oauth for multi-team apps
   clientId: process.env.clientId,
   clientSecret: process.env.clientSecret,
-  scopes: ['bot', 'channels:history', 'groups:history', 'mpim:history', 'im:history'],
+  scopes: [
+    'bot',
+    'channels:history',
+    'groups:history',
+    'chat:write:bot',
+    'mpim:history',
+    'im:history',
+  ],
   redirectUri: process.env.redirectUri,
 
   // functions required for retrieving team-specific info
