@@ -48,7 +48,7 @@ mongodb
 const adapter = new SlackAdapter({
   debug: true,
   // parameters used to secure webhook endpoint
-  clientSigningSecret: process.env.e83ed31d69b84ba85db85075581024ff,
+  clientSigningSecret: process.env.clientSigningSecret,
 
   // credentials used to set up oauth for multi-team apps
   clientId: process.env.clientId,
